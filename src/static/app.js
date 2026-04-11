@@ -571,10 +571,10 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <div class="share-buttons">
         <span class="share-label">Share:</span>
-        <button class="share-btn share-copy" data-activity="${name}" title="Copy link">🔗</button>
-        <button class="share-btn share-twitter" data-activity="${name}" title="Share on X (Twitter)">𝕏</button>
-        <button class="share-btn share-facebook" data-activity="${name}" title="Share on Facebook">f</button>
-        <button class="share-btn share-whatsapp" data-activity="${name}" title="Share on WhatsApp">💬</button>
+        <button class="share-btn share-copy" data-activity="${name}" title="Copy link" aria-label="Copy link">🔗</button>
+        <button class="share-btn share-twitter" data-activity="${name}" title="Share on X (Twitter)" aria-label="Share on X (Twitter)">𝕏</button>
+        <button class="share-btn share-facebook" data-activity="${name}" title="Share on Facebook" aria-label="Share on Facebook">f</button>
+        <button class="share-btn share-whatsapp" data-activity="${name}" title="Share on WhatsApp" aria-label="Share on WhatsApp">💬</button>
       </div>
     `;
 
@@ -613,7 +613,12 @@ document.addEventListener("DOMContentLoaded", () => {
     activitiesList.appendChild(activityCard);
   }
 
-  // Share an activity on social media or copy its link
+  // Share an activity with friends via different platforms:
+  //   "copy"      - copies the direct link to the activity to the clipboard
+  //   "twitter"   - opens Twitter/X to compose a tweet about the activity
+  //   "facebook"  - opens Facebook to share the activity link
+  //   "whatsapp"  - opens WhatsApp to send the activity link as a message
+  // The 'btn' parameter is only needed for the "copy" platform to show feedback.
   function shareActivity(platform, activityName, btn) {
     const shareUrl =
       window.location.origin +
@@ -628,14 +633,17 @@ document.addEventListener("DOMContentLoaded", () => {
         .then(() => {
           const original = btn.textContent;
           btn.textContent = "✓";
+          btn.setAttribute("aria-label", "Link copied!");
           btn.classList.add("share-copied");
           setTimeout(() => {
             btn.textContent = original;
+            btn.setAttribute("aria-label", "Copy link");
             btn.classList.remove("share-copied");
           }, 1500);
         })
         .catch(() => {
-          prompt("Copy this link:", shareUrl);
+          // Fallback: show the link in the main message area so it is accessible
+          showMessage("Copy this link to share: " + shareUrl, "info");
         });
     } else if (platform === "twitter") {
       window.open(
