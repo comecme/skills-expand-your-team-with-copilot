@@ -569,6 +569,13 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-buttons">
+        <span class="share-label">Share:</span>
+        <button class="share-btn share-copy" data-activity="${name}" title="Copy link">🔗</button>
+        <button class="share-btn share-twitter" data-activity="${name}" title="Share on X (Twitter)">𝕏</button>
+        <button class="share-btn share-facebook" data-activity="${name}" title="Share on Facebook">f</button>
+        <button class="share-btn share-whatsapp" data-activity="${name}" title="Share on WhatsApp">💬</button>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -587,7 +594,72 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Add click handlers for share buttons
+    activityCard.querySelectorAll(".share-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        const activityName = btn.dataset.activity;
+        if (btn.classList.contains("share-copy")) {
+          shareActivity("copy", activityName, btn);
+        } else if (btn.classList.contains("share-twitter")) {
+          shareActivity("twitter", activityName);
+        } else if (btn.classList.contains("share-facebook")) {
+          shareActivity("facebook", activityName);
+        } else if (btn.classList.contains("share-whatsapp")) {
+          shareActivity("whatsapp", activityName);
+        }
+      });
+    });
+
     activitiesList.appendChild(activityCard);
+  }
+
+  // Share an activity on social media or copy its link
+  function shareActivity(platform, activityName, btn) {
+    const shareUrl =
+      window.location.origin +
+      window.location.pathname +
+      "?activity=" +
+      encodeURIComponent(activityName);
+    const shareText = `Check out this activity at Mergington High School: ${activityName}`;
+
+    if (platform === "copy") {
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => {
+          const original = btn.textContent;
+          btn.textContent = "✓";
+          btn.classList.add("share-copied");
+          setTimeout(() => {
+            btn.textContent = original;
+            btn.classList.remove("share-copied");
+          }, 1500);
+        })
+        .catch(() => {
+          prompt("Copy this link:", shareUrl);
+        });
+    } else if (platform === "twitter") {
+      window.open(
+        "https://twitter.com/intent/tweet?text=" +
+          encodeURIComponent(shareText) +
+          "&url=" +
+          encodeURIComponent(shareUrl),
+        "_blank",
+        "noopener,noreferrer"
+      );
+    } else if (platform === "facebook") {
+      window.open(
+        "https://www.facebook.com/sharer/sharer.php?u=" +
+          encodeURIComponent(shareUrl),
+        "_blank",
+        "noopener,noreferrer"
+      );
+    } else if (platform === "whatsapp") {
+      window.open(
+        "https://wa.me/?text=" + encodeURIComponent(shareText + " " + shareUrl),
+        "_blank",
+        "noopener,noreferrer"
+      );
+    }
   }
 
   // Event listeners for search and filter
